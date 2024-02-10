@@ -21,6 +21,15 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        ndk {
+            // Don't package arm64-v8a or x86_64
+            abiFilters.add("armeabi-v7a")
+            abiFilters.add("x86")
+            abiFilters.add("x86_64")
+            abiFilters.add("arm64-v8a")
+        }
+
     }
 
     buildTypes {
@@ -73,6 +82,7 @@ dependencies {
     implementation(libs.kotlinx.datetime)
 
     testImplementation(libs.junit)
+    testImplementation(libs.junit.v412)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(platform(libs.compose.bom))
@@ -80,6 +90,7 @@ dependencies {
     debugImplementation(libs.ui.tooling)
     debugImplementation(libs.ui.test.manifest)
 
+    implementation (libs.playstore.dynamic.feature.support)
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     ksp (libs.dagger.compiler)

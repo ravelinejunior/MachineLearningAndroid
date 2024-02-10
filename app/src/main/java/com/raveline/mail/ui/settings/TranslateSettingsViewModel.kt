@@ -1,5 +1,6 @@
 package com.raveline.mail.ui.settings
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.raveline.mail.mlkit.TextTranslator
@@ -27,8 +28,9 @@ class TranslateSettingsViewModel @Inject constructor(
 
     internal fun loadLanguages() {
         viewModelScope.launch {
-            delay(3000)
+            delay(1000)
             _uiState.value = _uiState.value.copy(
+                allLanguageModels = textTranslator.getAllModels()
             )
             updateLanguagesState()
             loadDownloadedLanguages()
@@ -58,6 +60,23 @@ class TranslateSettingsViewModel @Inject constructor(
     }
 
     private fun loadDownloadedLanguages() {
+        textTranslator.getDownloadedModels(
+            onSuccess = {
+                _uiState.value = _uiState.value.copy(
+                    downloadedLanguageModels = it
+                )
+
+                updateLanguagesState()
+            },
+            onFailure = {
+                if (_uiState.value.allLanguageModels.isEmpty()) {
+                    _uiState.value = _uiState.value.copy(
+                        loadModelsState = AppState.Error
+                    )
+                }
+                Log.e("TAG_loadDownloadedLanguages", it)
+            }
+        )
     }
 
     fun showDownloadDialog(show: Boolean) {
@@ -93,9 +112,37 @@ class TranslateSettingsViewModel @Inject constructor(
             languageModel = languageModel,
             downloadState = DownloadState.DOWNLOADING
         )
+
+        textTranslator.downloadModel(
+            modelName = languageModel.id,
+            onSuccess = {
+                loadLanguages()
+            },
+            onFailure = {
+                updateDownloadState(
+                    languageModel = languageModel,
+                    downloadState = DownloadState.NOT_DOWNLOADED
+                )
+                Log.e("TAG_downloadLanguage", "downloadLanguage: $it")
+            }
+        )
     }
 
     fun removeLanguage(languageModel: LanguageModel) {
+        textTranslator.removeModel(
+            modelName = languageModel.id,
+            onSuccess = {
+                loadLanguages()
+            },
+            onFailure = {
+                updateDownloadState(
+                    languageModel = languageModel,
+                    downloadState = DownloadState.DOWNLOADED
+                )
+
+                Log.e("TAG_removeLanguage", "downloadLanguage: $it")
+            }
+        )
     }
 
     fun cleanState() {
