@@ -183,6 +183,25 @@ class ContentEmailViewModel @Inject constructor(
             selectedEmailDataModel?.let { email ->
                 languageDataModelIdentified?.let { languageIdentified ->
                     localLanguageDataModel?.let { localLanguage ->
+                        textTranslator.translateText(
+                            text = email.content,
+                            sourceLanguage = languageIdentified.code,
+                            targetLanguage = localLanguage.code,
+                            onSuccess = { _, translatedText ->
+                                _uiState.value = _uiState.value.copy(
+                                    selectedEmailDataModel = email.copy(content = translatedText),
+                                    translatedState = TranslatedState.TRANSLATED
+                                )
+
+                                translateSubject()
+                            },
+                            onFailure = {
+                                _uiState.value = _uiState.value.copy(
+                                    translatedState = TranslatedState.NOT_TRANSLATED
+                                )
+                                Log.e("TAG_translateEmail", it)
+                            }
+                        )
                     }
                 }
             }
@@ -194,6 +213,26 @@ class ContentEmailViewModel @Inject constructor(
             selectedEmailDataModel?.let { email ->
                 languageDataModelIdentified?.let { languageIdentified ->
                     localLanguageDataModel?.let { localLanguage ->
+                        textTranslator.translateText(
+                            text = email.subject,
+                            sourceLanguage = languageIdentified.code,
+                            targetLanguage = localLanguage.code,
+                            onSuccess = { _, translatedText ->
+                                _uiState.value = _uiState.value.copy(
+                                    selectedEmailDataModel = selectedEmailDataModel.copy(
+                                        subject = translatedText
+                                    ),
+                                    translatedState = TranslatedState.TRANSLATED
+                                )
+
+                            },
+                            onFailure = {
+                                _uiState.value = _uiState.value.copy(
+                                    translatedState = TranslatedState.NOT_TRANSLATED
+                                )
+                                Log.e("TAG_translateEmail", it)
+                            }
+                        )
                     }
                 }
             }

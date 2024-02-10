@@ -46,6 +46,7 @@ import com.raveline.mail.extensions.toFormattedDate
 import com.raveline.mail.model.EmailDataModel
 import com.raveline.mail.ui.components.LoadScreen
 import com.raveline.mail.ui.settings.LanguageDialog
+import java.util.Locale
 
 @Composable
 fun ContentEmailScreen() {
@@ -87,7 +88,13 @@ fun ContentEmailScreen() {
 
         if (state.showDownloadLanguageDialog) {
             LanguageDialog(
-                title = "${state.languageDataModelIdentified?.name}",
+                title = "${
+                    state.languageDataModelIdentified?.name?.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase(
+                            Locale.getDefault()
+                        ) else it.toString()
+                    }
+                }",
                 description = stringResource(R.string.download_warning_emails),
                 confirmText = stringResource(R.string.baixar),
                 onConfirm = {
@@ -167,7 +174,7 @@ private fun EmailSubHeader(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Close,
-                    contentDescription = "Esconder sugestão de tradução",
+                    contentDescription = "Hide suggestion button",
                     tint = Color.Gray,
                     modifier = Modifier.size(24.dp)
                 )
@@ -236,7 +243,7 @@ private fun EmailHeader(emailDataModel: EmailDataModel) {
             }
 
             Icon(
-                Icons.Default.MoreVert, "Mais informações",
+                Icons.Default.MoreVert, "More informations",
             )
         }
         Divider(
